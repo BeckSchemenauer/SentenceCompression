@@ -1,9 +1,10 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
 from transformers import BartTokenizer, BartForConditionalGeneration
 
+# Change this to the directory where the model and other needed files are stored
 model_name = "H:/models2"
 tokenizer2 = BartTokenizer.from_pretrained(model_name)
 model2 = BartForConditionalGeneration.from_pretrained(model_name)
+
 
 def summarize_text_bart(input_text):
     # Tokenize the input text
@@ -15,6 +16,7 @@ def summarize_text_bart(input_text):
     # Decode the generated output
     summary = tokenizer2.decode(outputs[0], skip_special_tokens=True)
     return summary
+
 
 # Example usage
 new_sentence = "The Java world simply speaking did not tolerate this kind of issue to just go on and on the way that it seems to have here"
