@@ -1,38 +1,98 @@
-import requests
-import gzip
 import json
+import os
 
-# URL of the gzipped JSON file
+import pandas as pd
+from datasets import Dataset
+from transformers import BartTokenizer, BartForConditionalGeneration, DataCollatorForSeq2Seq
+from transformers import Trainer, TrainingArguments
+
+# Load the dataset
 url = "https://github.com/google-research-datasets/sentence-compression/raw/master/data/sent-comp.train01.json.gz"
+file_path = "./sent-comp.train01.json/sent-comp.train01.json"
 
-# Step 1: Download the gzipped file
-response = requests.get(url, stream=True)
-response.raise_for_status()  # Check if the download was successful
+json_data = []
 
-# Step 2: Decompress and load the entire JSON content
-with gzip.GzipFile(fileobj=response.raw) as f:
-    file_content = f.read().decode("utf-8")
+with open(file_path, 'r', encoding='utf-8') as f:
+    content = f.read()
 
-# Step 3: Split the content into possible JSON objects
-# Assuming objects are separated by a newline or similar character
-json_objects = file_content.splitlines()
+json_strings = content.split('\n\n')
+for json_string in json_strings:
+    cleaned_content = json_string.replace('\n', '')
 
-# Step 4: Parse the first valid JSON object
-first_json_obj = None
-for obj in json_objects:
-    if obj.strip():  # Check for non-empty lines
+    if cleaned_content:
         try:
-            first_json_obj = json.loads(obj)
-            break  # Stop after the first valid JSON object
-        except json.JSONDecodeError:
-            continue  # Ignore invalid JSON lines
+            json_objects = json.loads(f"[{cleaned_content}]")
+            json_data.extend(json_objects)
+        except json.JSONDecodeError as e:
+            print(f"Failed to parse cleaned JSON: {e}")
 
-# Step 5: Extract the "graph.sentence" and "compression.text" fields if a valid object is found
-if first_json_obj:
-    graph_sentence = first_json_obj.get("graph", {}).get("sentence")
-    compression_text = first_json_obj.get("compression", {}).get("text")
-
-    print("Graph Sentence:", graph_sentence)
-    print("Compression Text:", compression_text)
+# Convert to DataFrame
+if json_data:
+    df = pd.json_normalize(json_data)
+    print(df.columns)
+    print(df["graph.sentence"])
+    print(df["compression.text"])
 else:
-    print("No valid JSON object found.")
+    print("No valid JSON data found.")
+
+train_data = df[['graph.sentence', 'compression.text']].dropna()
+train_data.columns = ['input_text', 'target_text']
+train_data = train_data[0:1000]
+print(train_data)
+
+# Load the BART tokenizer and model
+tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
+model = BartForConditionalGeneration.from_pretrained("facebook/bart-base")
+
+# Define a preprocessing function for tokenizing
+def preprocess_function(examples):
+    inputs = examples["input_text"]
+    outputs = examples["target_text"]
+
+    # Tokenize inputs with padding
+    model_inputs = tokenizer(inputs, max_length=128, truncation=True, padding='max_length')
+
+    # Tokenize targets with padding and set them as labels
+    labels = tokenizer(outputs, max_length=128, truncation=True, padding='max_length')
+
+    # Assign labels to model inputs
+    model_inputs["labels"] = labels["input_ids"]
+    return model_inputs
+
+train_data = Dataset.from_pandas(train_data)
+tokenized_datasets = train_data.map(preprocess_function, batched=True)
+
+print(tokenized_datasets[0])  # Inspect the structure of the first tokenized sample
+
+# Define the Data Collator for Seq2Seq
+data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
+
+# Training arguments
+training_args = TrainingArguments(
+    output_dir="./results",
+    evaluation_strategy="epoch",
+    save_strategy="no",
+    per_device_train_batch_size=8,
+    per_device_eval_batch_size=8,
+    num_train_epochs=5,
+    weight_decay=0.01,
+    report_to="none",
+)
+
+# Trainer setup
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=tokenized_datasets,
+    eval_dataset=tokenized_datasets,
+    data_collator=data_collator,
+)
+
+# Start training
+trainer.train()
+new_drive_path = "H:/models2"
+
+os.makedirs(new_drive_path, exist_ok=True)
+
+model.save_pretrained(new_drive_path)
+tokenizer.save_pretrained(new_drive_path)
