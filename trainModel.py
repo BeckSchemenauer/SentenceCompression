@@ -1,22 +1,23 @@
 import json
 import os
-
-import pandas as pd
 from datasets import Dataset
 from transformers import BartTokenizer, BartForConditionalGeneration, DataCollatorForSeq2Seq
 from transformers import Trainer, TrainingArguments
 from preprocessing import getData
+import pandas as pd
 
+train_data = pd.read_json("hf://datasets/embedding-data/sentence-compression/sentence-compression_compressed.jsonl.gz", lines=True)
+print(train_data["set"][0], train_data["set"][1])
 # Max value is 20,000 for now
-train_data = getData(10000)
+#train_data = getData(10000)
 
 # Load the BART tokenizer and model
 tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
 model = BartForConditionalGeneration.from_pretrained("facebook/bart-base")
 
 def preprocess_function(examples):
-    inputs = examples["input_text"]
-    outputs = examples["target_text"]
+    inputs = examples["set"][0]
+    outputs = examples["set"][1]
 
     # Tokenize inputs with padding
     model_inputs = tokenizer(inputs, max_length=128, truncation=True, padding='max_length')
@@ -30,7 +31,7 @@ def preprocess_function(examples):
 
 
 train_data = Dataset.from_pandas(train_data)
-tokenized_datasets = train_data.map(preprocess_function, batched=True)
+tokenized_datasets = train_data.map(preprocess_function)
 
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
@@ -59,7 +60,7 @@ trainer = Trainer(
 trainer.train()
 
 # Change this to a drive path that can store the trained model
-new_drive_path = "H:/models2"
+new_drive_path = "./modelsOtherData"
 os.makedirs(new_drive_path, exist_ok=True)
 
 # Saving model and tokenizer
