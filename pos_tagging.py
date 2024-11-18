@@ -22,10 +22,10 @@ def compress(doc):
         # Check various conditions to exclude words
         if (
             pos in ["ADV", "ADJ"]           # Exclude adverbs and adjectives
-            # or token.is_stop                # Exclude stop words
-            #or token.is_punct               # Exclude punctuation
-            #or len(token) < 3               # Exclude short words
-            #or token.lemma_ in ["be", "have", "do"]  # Exclude specific verbs
+            or token.is_stop                # Exclude stop words
+            or token.is_punct               # Exclude punctuation
+            or len(token) < 3               # Exclude short words
+            or token.lemma_ in ["be", "have", "do"]  # Exclude specific verbs
         ):
             continue
 
@@ -55,18 +55,26 @@ def process_sentence(input_sentence):
     return compressed_sentence
 
 
+doc_ = preprocess("The quick brown fox jumped over the lazy dog.")
+
 # # Print POS tags and dependencies
-# for token in doc:
-#     print(f"{token.text:<12} POS: {token.pos_:<6} Dependency: {token.dep_:<10} Head: {token.head.text}")
+for token in doc_:
+    print(f"{token.text:<12} POS: {token.pos_:<6} Dependency: {token.dep_:<10} Head: {token.head.text}")
+
+# Render the dependency tree and save it as an SVG file
+svg = displacy.render(doc_, style="dep", jupyter=False)
+with open("dependency_tree.svg", "w", encoding="utf-8") as file:
+    file.write(svg)
+
+print("Dependency tree saved as 'dependency_tree.svg'")
+
+print(process_sentence("The quick brown fox jumped over the lazy dog."))
+
+# with open("test1.txt", 'r') as file:
+#     text = file.read()
 #
-# # Render the dependency tree
-# displacy.render(doc, style="dep", jupyter=True)
-
-with open("test1.txt", 'r') as file:
-    text = file.read()
-
-cs = process_paragraph(text)
-for s, c in cs:
-    print(s)
-    print(c)
-    print()
+# cs = process_paragraph(text)
+# for s, c in cs:
+#     print(s)
+#     print(c)
+#     print()
