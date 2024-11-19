@@ -1,17 +1,13 @@
-import json
 import os
-
 import torch
 from datasets import Dataset
 from transformers import BartTokenizer, BartForConditionalGeneration, DataCollatorForSeq2Seq
 from transformers import Trainer, TrainingArguments
-from preprocessing import getData
 import pandas as pd
 
-print(torch.backends.mps.is_available())  # Should return True for M1/M2 GPU support
 
 
-train_data = pd.read_csv("./Release/compressionhistory.tsv", sep='\t', on_bad_lines='warn')
+train_data = pd.read_csv("H:/Release/compressionhistory.tsv", sep='\t', on_bad_lines='warn')
 
 train_data["Source"] = train_data["Source"].astype(str)
 train_data["Shortening"] = train_data["Shortening"].astype(str)
@@ -38,12 +34,11 @@ train_data["NewSource"] = train_data["NewSource"].astype(str)
 train_data["NewShortening"] = train_data["NewShortening"].astype(str)
 train_data.drop(["Source", "Shortening"], axis=1, inplace=True)
 train_data = train_data[["NewSource", "NewShortening"]]
-train_data = train_data.iloc[0:1000]
 
 # Load the BART tokenizer and model
 tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
 model = BartForConditionalGeneration.from_pretrained("facebook/bart-base")
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 model.to(device)
 
@@ -69,11 +64,11 @@ data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
 # Training arguments
 training_args = TrainingArguments(
-    output_dir="./results",
+    output_dir="../results",
     evaluation_strategy="epoch",
     save_strategy="no",
-    per_device_train_batch_size=14,
-    per_device_eval_batch_size=14,
+    per_device_train_batch_size=32,
+    per_device_eval_batch_size=32,
     num_train_epochs=5,
     weight_decay=0.01,
     report_to="none",
@@ -92,7 +87,7 @@ trainer = Trainer(
 trainer.train()
 
 # Change this to a drive path that can store the trained model
-new_drive_path = "./modelsMSData"
+new_drive_path = "modelsMSData"
 os.makedirs(new_drive_path, exist_ok=True)
 
 # Saving model and tokenizer

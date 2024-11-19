@@ -8,6 +8,7 @@ import pandas as pd
 
 train_data = pd.read_json("hf://datasets/embedding-data/sentence-compression/sentence-compression_compressed.jsonl.gz", lines=True)
 print(train_data["set"][0], train_data["set"][1])
+train_data = train_data.iloc[0:10000]
 # Max value is 20,000 for now
 #train_data = getData(10000)
 
@@ -37,11 +38,11 @@ data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
 # Training arguments
 training_args = TrainingArguments(
-    output_dir="./results",
+    output_dir="../results",
     evaluation_strategy="epoch",
     save_strategy="no",
-    per_device_train_batch_size=8,
-    per_device_eval_batch_size=8,
+    per_device_train_batch_size=32,
+    per_device_eval_batch_size=32,
     num_train_epochs=5,
     weight_decay=0.01,
     report_to="none",
@@ -60,7 +61,7 @@ trainer = Trainer(
 trainer.train()
 
 # Change this to a drive path that can store the trained model
-new_drive_path = "./modelsOtherData"
+new_drive_path = "./modelsOtherHFData"
 os.makedirs(new_drive_path, exist_ok=True)
 
 # Saving model and tokenizer

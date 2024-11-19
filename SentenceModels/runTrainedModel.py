@@ -21,9 +21,17 @@ sent2 = "For this milestone you and your team should have accomplished the follo
 sent3 = "In recent years, the importance of mental health awareness has grown significantly, as people around the world begin to understand that mental well-being is just as crucial as physical health, prompting individuals, organizations, and governments alike to invest in resources, education, and policies that support mental health care access and reduce the stigma associated with seeking help."
 sent4 = "As the debate around renewable energy intensifies, many countries are faced with the challenge of balancing the economic benefits of fossil fuels with the environmental necessity of adopting cleaner energy sources, a transition that requires not only technological innovation but also a rethinking of global trade, infrastructure, and societal expectations."
 sent5 = "Companies are rethinking team dynamics, communication, and work-life balance, but still questioning if traditional office spaces are still needed."
-summary = summarize_text_bart(sent1)
+summary = summarize_text_bart(sent4)
 
 print("Original Sentence:")
-print(sent1)
+print(sent4)
+summary2 = summarize_text_bart(summary)
+summary3 = summarize_text_bart(summary2)
+summary4 = summarize_text_bart(summary3)
+
+
 print("\nSummarized Sentence:")
 print(summary)
+print(summary2)
+print(summary3)
+print(summary4)
