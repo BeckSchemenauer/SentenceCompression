@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>Text Compressor</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Compressor</h1>
+        <textarea id="inputText" placeholder="Enter text here..."></textarea>
+
+        <div class="slider-container">
+            <label for="compressionSlider">Compression Level:</label>
+            <input type="range" id="compressionSlider" min="1" max="5" step="1" value="3">
+            <span id="sliderValue">3</span>
+        </div>
+
+        <button id="compressButton">Compress Text</button>
+        <h2>Compressed Output:</h2>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        const slider = document.getElementById('compressionSlider');
+        const sliderValue = document.getElementById('sliderValue');
+        const compressButton = document.getElementById('compressButton');
+
+        // Update slider value display
+        slider.addEventListener('input', () => {
+            sliderValue.textContent = slider.value;
+        });
+
+        // Compress text on button click
+        compressButton.addEventListener('click', async () => {
+            const inputText = document.getElementById('inputText').value;
+            const compressionLevel = parseInt(slider.value, 10);
+
+            const response = await fetch('http://127.0.0.1:5000/compress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: inputText, compression_level: compressionLevel }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('output').textContent = JSON.stringify(data.compressed, null, 2);
+            } else {
+                document.getElementById('output').textContent = data.error || 'An error occurred';
+            }
+        });
+    </script>
+</body>
+</html>

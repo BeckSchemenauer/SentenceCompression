@@ -3,7 +3,7 @@ import pandas as pd
 
 
 url = "https://github.com/google-research-datasets/sentence-compression/raw/master/data/sent-comp.train01.json.gz"
-file_path = "./sent-comp.train01.json/sent-comp.train01.json"
+file_path = "sent-comp.train01.json/sent-comp.train01.json"
 
 json_data = []
 
