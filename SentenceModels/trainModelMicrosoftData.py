@@ -1,11 +1,10 @@
 import os
 import torch
 from datasets import Dataset
+from sklearn.model_selection import train_test_split
 from transformers import BartTokenizer, BartForConditionalGeneration, DataCollatorForSeq2Seq
 from transformers import Trainer, TrainingArguments
 import pandas as pd
-
-
 
 train_data = pd.read_csv("H:/Release/compressionhistory.tsv", sep='\t', on_bad_lines='warn')
 
@@ -60,6 +59,8 @@ def preprocess_function(examples):
 train_data = Dataset.from_pandas(train_data)
 tokenized_datasets = train_data.map(preprocess_function)
 
+train, eval = train_test_split(tokenized_datasets, test_size=0.2)
+
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
 # Training arguments
@@ -78,9 +79,8 @@ training_args = TrainingArguments(
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=tokenized_datasets,
-    # Change this later
-    eval_dataset=tokenized_datasets,
+    train_dataset=train,
+    eval_dataset=eval,
     data_collator=data_collator,
 )
 
