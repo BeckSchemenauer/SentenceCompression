@@ -312,19 +312,19 @@ def main():
 
     # Create DataLoader
     train_dataset = Seq2SeqDataset(train_df, src_vocab, trg_vocab)
-    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     
     eval_dataset = Seq2SeqDataset(eval_df, src_vocab, trg_vocab)
-    eval_loader = DataLoader(eval_dataset, batch_size=16, shuffle=False)
+    eval_loader = DataLoader(eval_dataset, batch_size=64, shuffle=False)
 
     # Model configuration
     input_dim = len(src_vocab)   # Number of unique words in source vocabulary
     output_dim = len(trg_vocab)  # Number of unique words in target vocabulary
     emb_dim = 256
     hidden_dim = 512
-    n_layers = 3
-    dropout = 0.5
-    lr = 1e-5
+    n_layers = 2
+    dropout = 0.2
+    lr = 1e-3
 
     # Initialize the model
     model = GRUSeq2Seq(input_dim, emb_dim, hidden_dim, output_dim, n_layers, dropout)
@@ -351,5 +351,5 @@ def main():
 
 # Run the main function
 if __name__ == "__main__":
-    #main()
-    best_params = tune_hyperparameters()
+    main()
+    #best_params = tune_hyperparameters()

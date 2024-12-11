@@ -73,7 +73,7 @@ def main():
     emb_dim = 256
     hidden_dim = 512
     n_layers = 2
-    dropout = 0.5
+    dropout = 0.2
     
     model = GRUSeq2Seq(input_dim, emb_dim, hidden_dim, output_dim, n_layers, dropout).to(device)
     optimizer = optim.Adam(model.parameters())
@@ -84,10 +84,15 @@ def main():
     # Test with an example sentence
     input_sentence = "The quick brown fox jumps over the lazy dog in the quiet meadow, while the birds sing softly in the trees above."
     predicted_sentence = generate_prediction(model, input_sentence, src_vocab, trg_vocab, device)
+    input2 = "Just because rural Chinese and African people may not need high dairy consumption to be healthy does not mean that Americans should be discouraged from drinking milk."
+    pred2 = generate_prediction(model, input2, src_vocab, trg_vocab, device)
 
     # Print results
     print(f"Input: {input_sentence}")
     print(f"Predicted: {predicted_sentence}")
+    print("Sample from eval set:\n")
+    print(f"Input: {input2}")
+    print(f"Predicted: {pred2}")
 
 if __name__ == '__main__':
     main()
