@@ -11,15 +11,12 @@ from transformers import (
     Trainer,
     TrainingArguments
 )
-from preprocessing import getData
 
 # Load and preprocess dataset
 train_data = pd.read_json(
     "hf://datasets/embedding-data/sentence-compression/sentence-compression_compressed.jsonl.gz",
     lines=True
 )
-print(train_data["set"][0], train_data["set"][1])
-train_data = train_data.iloc[0:1000]
 
 # Initialize BART tokenizer and model
 tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
@@ -63,7 +60,7 @@ trainer = Trainer(
     model=model,
     args=training_args,
     train_dataset=tokenized_datasets,
-    eval_dataset=tokenized_datasets,  # For now, using train data for eval
+    eval_dataset=tokenized_datasets,
     data_collator=data_collator,
 )
 
@@ -112,22 +109,3 @@ def evaluate_with_attention(trainer, dataset, tokenizer, model):
 
     print("Predictions:")
     print(predictions)
-
-def plot_attention(attention_matrix, input_tokens, output_tokens, head=0):
-    """
-    Visualize attention weights for a specific attention head.
-    """
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(
-        attention_matrix.detach().numpy(),
-        xticklabels=output_tokens,
-        yticklabels=input_tokens,
-        cmap="viridis"
-    )
-    plt.xlabel("Output Tokens")
-    plt.ylabel("Input Tokens")
-    plt.title(f"Attention Head {head}")
-    plt.show()
-
-# Evaluate and visualize
-evaluate_with_attention(trainer, tokenized_datasets, tokenizer, model)

@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-model_name = "../SentenceModels/modelsMSData"
+model_name = "../modelsMSData"
 tokenizer = BartTokenizer.from_pretrained(model_name)
 model = BartForConditionalGeneration.from_pretrained(model_name)
 

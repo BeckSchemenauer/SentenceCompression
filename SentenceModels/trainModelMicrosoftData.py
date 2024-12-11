@@ -6,21 +6,21 @@ from transformers import BartTokenizer, BartForConditionalGeneration, DataCollat
 from transformers import Trainer, TrainingArguments
 import pandas as pd
 
-train_data = pd.read_csv("H:/Release/compressionhistory.tsv", sep='\t', on_bad_lines='warn')
+# Path to dataset
+train_data = pd.read_csv("../Release/compressionhistory.tsv", sep='\t', on_bad_lines='warn')
 
+# Selects out old columns and drops all but shortest compression
 train_data["Source"] = train_data["Source"].astype(str)
 train_data["Shortening"] = train_data["Shortening"].astype(str)
 dic = {}
 for i, sent in enumerate(train_data["Source"]):
     if sent in dic:
-        list = dic[sent]
-        list.append(train_data["Shortening"][i])
+        dic[sent].append(train_data["Shortening"][i])
     else:
         dic[sent] = [train_data["Shortening"][i]]
 
 for i in dic.keys():
-    list = dic[i]
-    dic[i] = sorted(list, key=len)
+    dic[i] = sorted(dic[i], key=len)
 
 train_data["NewSource"] = None
 train_data["NewShortening"] = None
@@ -41,26 +41,29 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 model.to(device)
 
+# Tokenize inputs
 def preprocess_function(examples):
     inputs = examples["NewSource"]
     outputs = examples["NewShortening"]
 
-    # Tokenize inputs with padding
     model_inputs = tokenizer(inputs, max_length=128, truncation=True, padding='max_length')
-
-    # Tokenize targets with padding and set them as labels
     labels = tokenizer(outputs, max_length=128, truncation=True, padding='max_length')
 
-    # Assign labels to model inputs
     model_inputs["labels"] = labels["input_ids"]
     return model_inputs
 
-
+# Convert to Dataset object
 train_data = Dataset.from_pandas(train_data)
-tokenized_datasets = train_data.map(preprocess_function)
 
-train, eval = train_test_split(tokenized_datasets, test_size=0.2)
+# Tokenize the dataset
+tokenized_datasets = train_data.map(preprocess_function, batched=True)
 
+# Split the dataset into train and evaluation sets
+dataset_split = tokenized_datasets.train_test_split(test_size=0.2)
+train_dataset = dataset_split['train']
+eval_dataset = dataset_split['test']
+
+# Data collator
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
 # Training arguments
@@ -79,8 +82,8 @@ training_args = TrainingArguments(
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=train,
-    eval_dataset=eval,
+    train_dataset=train_dataset,
+    eval_dataset=eval_dataset,
     data_collator=data_collator,
 )
 
