@@ -312,19 +312,19 @@ def main():
 
     # Create DataLoader
     train_dataset = Seq2SeqDataset(train_df, src_vocab, trg_vocab)
-    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     
     eval_dataset = Seq2SeqDataset(eval_df, src_vocab, trg_vocab)
-    eval_loader = DataLoader(eval_dataset, batch_size=64, shuffle=False)
+    eval_loader = DataLoader(eval_dataset, batch_size=32, shuffle=False)
 
     # Model configuration
     input_dim = len(src_vocab)   # Number of unique words in source vocabulary
     output_dim = len(trg_vocab)  # Number of unique words in target vocabulary
     emb_dim = 256
     hidden_dim = 512
-    n_layers = 2
-    dropout = 0.2
-    lr = 1e-3
+    n_layers = 3
+    dropout = 0.5
+    lr = 1e-4
 
     # Initialize the model
     model = GRUSeq2Seq(input_dim, emb_dim, hidden_dim, output_dim, n_layers, dropout)
@@ -339,7 +339,7 @@ def main():
     criterion = nn.CrossEntropyLoss(ignore_index=src_vocab['<PAD>'])
 
     # Train for a few epochs
-    epochs = 10
+    epochs = 30
     for epoch in range(epochs):
         train_loss, epoch_time = train(model, train_loader, optimizer, criterion, epoch, device)
         eval_loss = evaluate(model, eval_loader, criterion, device)

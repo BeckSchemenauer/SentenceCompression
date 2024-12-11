@@ -72,8 +72,8 @@ def main():
     output_dim = len(trg_vocab)
     emb_dim = 256
     hidden_dim = 512
-    n_layers = 2
-    dropout = 0.2
+    n_layers = 3
+    dropout = 0.5
     
     model = GRUSeq2Seq(input_dim, emb_dim, hidden_dim, output_dim, n_layers, dropout).to(device)
     optimizer = optim.Adam(model.parameters())
