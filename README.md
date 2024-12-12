@@ -1,5 +1,10 @@
-Running the Transformer
-1. Make sure the modelsMSData folder is in the root directory of the project
-2. If you would like to test the compression, run app.py (in Frontend)
-3. Then once running, open index.html in Google or another webbrowser, and you should be able to test the compression
+## Running the Transformer
 
+### 1. Prepare the Model Data
+Ensure the `modelsMSData` folder is located in the root directory of the project. This folder contains the necessary model data required for the transformer to function.
+
+### 2. Run the Application
+To test the compression:
+- Navigate to the **Frontend** folder.
+- Run the `app.py` file
+- Open `index.html` in your web browser
