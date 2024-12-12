@@ -171,7 +171,7 @@ def tune_hyperparameters():
         'n_layers': [1, 2, 3],  # Number of GRU layers
         'dropout': [0.2, 0.5, 0.7],  # Dropout rate
         'lr': [1e-5, 1e-4, 1e-3],  # Learning rate
-        'batch_size': [32, 64],  # Batch size
+        'batch_size': [32, 64],  # Batch size. Note: DO NOT try 16, will take forever
     }
 
     # Randomly sample hyperparameters
@@ -247,7 +247,7 @@ def tune_hyperparameters():
         criterion = nn.CrossEntropyLoss(ignore_index=src_vocab['<PAD>'])
 
         # Train the model for a few epochs
-        epochs = 3
+        epochs = 5
         for epoch in range(epochs):
             train_loss, epoch_time = train(model, train_loader, optimizer, criterion, epoch, device)
             eval_loss = evaluate(model, eval_loader, criterion, device)
@@ -339,7 +339,7 @@ def main():
     criterion = nn.CrossEntropyLoss(ignore_index=src_vocab['<PAD>'])
 
     # Train for a few epochs
-    epochs = 30
+    epochs = 10
     for epoch in range(epochs):
         train_loss, epoch_time = train(model, train_loader, optimizer, criterion, epoch, device)
         eval_loss = evaluate(model, eval_loader, criterion, device)
@@ -351,5 +351,7 @@ def main():
 
 # Run the main function
 if __name__ == "__main__":
+    # for normal training, uncomment main(). For hyperparameter tuning, comment out main() and uncomment best params
+
     main()
     #best_params = tune_hyperparameters()

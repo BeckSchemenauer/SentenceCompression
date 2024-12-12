@@ -90,7 +90,7 @@ def main():
     # Print results
     print(f"Input: {input_sentence}")
     print(f"Predicted: {predicted_sentence}")
-    print("Sample from eval set:\n")
+    print("Sample from eval set:")
     print(f"Input: {input2}")
     print(f"Predicted: {pred2}")
 
