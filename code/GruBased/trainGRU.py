@@ -28,7 +28,7 @@ def build_vocab(sentences):
 
 
 # Function to save vocabulary
-def save_vocab(src_vocab, trg_vocab, src_vocab_filename='src_vocab.pkl', trg_vocab_filename='trg_vocab.pkl'):
+def save_vocab(src_vocab, trg_vocab, src_vocab_filename='GruFiles/src_vocab.pkl', trg_vocab_filename='GruFiles/trg_vocab.pkl'):
     with open(src_vocab_filename, 'wb') as f:
         pickle.dump(src_vocab, f)
     print(f"Source vocabulary saved to {src_vocab_filename}")
@@ -154,7 +154,7 @@ def evaluate(model, eval_loader, criterion, device):
     return avg_loss
 
 # Save the model
-def save_model(model, optimizer, epoch, filename="model.pth"):
+def save_model(model, optimizer, epoch, filename="GruFiles/model.pth"):
     checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
@@ -312,19 +312,19 @@ def main():
 
     # Create DataLoader
     train_dataset = Seq2SeqDataset(train_df, src_vocab, trg_vocab)
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     
     eval_dataset = Seq2SeqDataset(eval_df, src_vocab, trg_vocab)
-    eval_loader = DataLoader(eval_dataset, batch_size=32, shuffle=False)
+    eval_loader = DataLoader(eval_dataset, batch_size=64, shuffle=False)
 
     # Model configuration
     input_dim = len(src_vocab)   # Number of unique words in source vocabulary
     output_dim = len(trg_vocab)  # Number of unique words in target vocabulary
     emb_dim = 256
     hidden_dim = 512
-    n_layers = 3
+    n_layers = 2
     dropout = 0.5
-    lr = 1e-4
+    lr = 1e-3
 
     # Initialize the model
     model = GRUSeq2Seq(input_dim, emb_dim, hidden_dim, output_dim, n_layers, dropout)

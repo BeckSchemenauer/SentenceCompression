@@ -3,7 +3,7 @@ from trainGRU import GRUSeq2Seq, tokenize  # Import the model definition and tok
 import torch.optim as optim
 
 # Function to load the trained model
-def load_model(model, optimizer, filename="model.pth"):
+def load_model(model, optimizer, filename="GruFiles/model.pth"):
     checkpoint = torch.load(filename)
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -65,21 +65,21 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load vocabularies (You should save and load these after training)
-    src_vocab, trg_vocab = load_vocab('src_vocab.pkl', 'trg_vocab.pkl')
+    src_vocab, trg_vocab = load_vocab('GruFiles/src_vocab.pkl', 'GruFiles/trg_vocab.pkl')
 
     # Initialize the model and optimizer
     input_dim = len(src_vocab)
     output_dim = len(trg_vocab)
     emb_dim = 256
     hidden_dim = 512
-    n_layers = 3
+    n_layers = 2
     dropout = 0.5
     
     model = GRUSeq2Seq(input_dim, emb_dim, hidden_dim, output_dim, n_layers, dropout).to(device)
     optimizer = optim.Adam(model.parameters())
 
     # Load the trained model
-    model, optimizer, epoch = load_model(model, optimizer, "model.pth")
+    model, optimizer, epoch = load_model(model, optimizer, "GruFiles/model.pth")
 
     # Test with an example sentence
     input_sentence = "The quick brown fox jumps over the lazy dog in the quiet meadow, while the birds sing softly in the trees above."
