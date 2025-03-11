@@ -1,3 +1,4 @@
+import time
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import torch
@@ -34,9 +35,14 @@ def compress_text():
         return jsonify({"error": "No text provided"}), 400
     if not (1 <= compression_level <= 5):
         return jsonify({"error": "Compression level must be between 1 and 5"}), 400
+        # Add timer around the loop
+    start_time = time.time()
     for i in range(compression_level):
         input_text = summarize_text_bart(input_text)
+    end_time = time.time()
 
+    duration = end_time - start_time
+    print(duration)
     return jsonify({"compressed": input_text})
 
 if __name__ == '__main__':
